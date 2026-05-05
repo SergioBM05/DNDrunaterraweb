@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabaseClient';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-
+//SD
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
