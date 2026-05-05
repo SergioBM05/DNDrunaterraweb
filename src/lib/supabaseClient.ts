@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+//sddad
 
 // Llamar directamente a import.meta.env dentro de createClient
 export const supabase = createClient(
