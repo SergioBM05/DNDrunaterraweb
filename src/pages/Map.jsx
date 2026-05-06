@@ -211,13 +211,12 @@ const DATA_RUNATERRA = {
         clases: [
             {
                 id: "tirador_jinx",
-                titulo: "Jinx",
-                subtitulo: "THE LOOSE CANNON",
-                descripcion: "A manic and impulsive criminal from Zaun, Jinx lives to wreak havoc without care for the consequences.",
-                tags: ["MARKSMAN"],
+                titulo: "Bárbaro",
+                subtitulo: "Quimófogo",
+                descripcion: "Productos descontrolados de los laboratorios y callejones de Zaun, los Quimófagos convierten su propio cuerpo en un experimento viviente. Se inyectan poder a costa de su estabilidad, desatando ráfagas de violencia impredecible. Cuanto más se fuerzan, más cerca están de romperse… o de arrasar con todo a su paso. Son bombas de carne y químicos andantes, temidos incluso por otros zaunitas. Recompensa el juego de alto riesgo y la gestión del caos interno.",
+                tags: ["Melee"],
                 habilidades: [
-                    { name: "Switcheroo!", desc: "Switches between Pow-Pow, the minigun and Fishbones, the rocket launcher." },
-                    { name: "Super Mega Death Rocket!", desc: "Fires a massive rocket across the map." }
+                    { name: "Passive Race", desc: "Sistema de Sobrecarga: La furia no disminuye fuera de combate si está bajo los efectos de alguna sustancia o en ambiente tóxico. Al entrar en Sobredosis (Rabia), gana bonificación al ataque: +modificador de FUE. Además, cada turno en Sobredosis acumula 1 contador de (Toxicidad). Al final de la Sobredosis, recibe 1d10 de daño necrótico por cada contador de Toxicidad acumulado. Puede elegir no salir de Sobredosis voluntariamente, pero los contadores siguen acumulándose." },
                 ],
                 imagen: barbaroZaun,
             },
