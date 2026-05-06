@@ -21,6 +21,7 @@ import barbaroZaun from "../assets/barbaroZaun.jpg";
 import barbaroTargon from "../assets/barbaroTargon.jpg";
 import barbaroShadowIsles from "../assets/barbaroShadowIsles.jpg";
 import ixtal from "../assets/ixtal.jpg";
+import druidaixtal from "../assets/druidaixtal.jpg";
 
 const DATA_RUNATERRA = {
     demacia: {
@@ -252,8 +253,8 @@ const DATA_RUNATERRA = {
         fondo: ixtal,
         clases: [
             {
-                id: "tirador_mf",
-                titulo: "Miss Fortune",
+                id: "Druida_Ixtal",
+                titulo: "Druida",
                 subtitulo: "THE BOUNTY HUNTER",
                 descripcion: "A Bilgewater captain famed for her looks but feared for her ruthlessness, Sarah Fortune is a stark figure among the city's hardened criminals.",
                 tags: ["MARKSMAN"],
@@ -261,7 +262,7 @@ const DATA_RUNATERRA = {
                     { name: "Double Up", desc: "Fires a bullet that hits two enemies." },
                     { name: "Bullet Time", desc: "Channels a barrage of bullets in a cone." }
                 ],
-                imagen: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/MissFortune_0.jpg",
+                imagen: druidaixtal,
             },
         ],
     },
