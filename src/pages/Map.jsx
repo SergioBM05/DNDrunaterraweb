@@ -741,7 +741,7 @@ const RunaterraMap = () => {
 
                     {isLoaded && (
                         //poner opacity:1 para poder verlo 
-                        <motion.div initial={{ opacity: 0 }} animate={{ }} transition={{ delay: 1.5 }}>
+                        <motion.div initial={{ opacity: 0 }} animate={{opacity:1}} transition={{ delay: 1.5 }}>
                             <MapMarker x="57%" y="69%" label="Ixtal" onClick={() => setActiveRegionKey("ixtal")} />
                             <MapMarker x="25%" y="33%" label="Demacia" onClick={() => setActiveRegionKey("demacia")} />
                             <MapMarker x="69%" y="17%" label="Ionia" onClick={() => setActiveRegionKey("ionia")} />
