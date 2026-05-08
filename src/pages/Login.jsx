@@ -116,7 +116,7 @@ const Login = () => {
 
                         <p className="text-[#a09b8c] text-[10px] text-center font-bold uppercase tracking-widest leading-loose">
                             ¿Aún no tienes cuenta? <br/>
-                            <Link to="/avisale-a-sergio" className="text-[#c8aa6e] hover:text-[#f0e6d2] underline underline-offset-4 transition-colors">Solicita tu acceso aquí</Link>
+                            <Link to="/avisaleAlAdmin" className="text-[#c8aa6e] hover:text-[#f0e6d2] underline underline-offset-4 transition-colors">Solicita tu acceso aquí</Link>
                         </p>
                     </div>
                 </form>
