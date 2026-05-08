@@ -4,12 +4,14 @@ import RunaterraMap from './pages/Map';
 import RaceSelector from './pages/RaceSelector';
 import CharacterSheet from './pages/CharacterSheet';
 import SelectCharacter from './pages/selectCharacter';
+import GlobalMusicPlayer from './components/GlobalMusicPlayer';
 import './App.css';
 
 function App() {
   return (
     <Router>
       <div className="min-h-screen bg-slate-900 text-white font-sans">
+        <GlobalMusicPlayer />
         {/* Aquí podrías poner un Navbar global más adelante */}
         
         <Routes>
