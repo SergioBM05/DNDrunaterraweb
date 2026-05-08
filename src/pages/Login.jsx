@@ -57,9 +57,9 @@ const Login = () => {
                             Runaterra <span className="text-[#c8aa6e]">D&D</span>
                         </h1>
                         <div className="flex items-center justify-center gap-3">
-                            <div className="h-[1px] w-16 bg-gradient-to-r from-transparent to-[#c8aa6e]"></div>
+                            <div className="h-px[1px] w-16 bg-linear-to-r from-transparent to-[#c8aa6e]"></div>
                             <div className="w-2 h-2 rotate-45 border border-[#c8aa6e] bg-[#010a13]"></div>
-                            <div className="h-[1px] w-16 bg-gradient-to-l from-transparent to-[#c8aa6e]"></div>
+                            <div className="h-px[1px] w-16 bg-linear-to-l from-transparent to-[#c8aa6e]"></div>
                         </div>
                         <p className="text-[#a09b8c] text-[11px] font-bold tracking-[0.25em] uppercase pt-3 opacity-80">Portal de Invocadores</p>
                     </div>
@@ -123,7 +123,7 @@ const Login = () => {
             </motion.div>
 
             {/* Borde de marco cinemático */}
-            <div className="absolute inset-0 border-[20px] border-[#c8aa6e]/5 pointer-events-none"></div>
+            <div className="absolute inset-0 border-20 border-[#c8aa6e]/5 pointer-events-none"></div>
         </div>
     );
 };

@@ -12,6 +12,7 @@ const seededValue = (i, salt = 1, min = 0, max = 1) => {
 // (seededPercent removed — not used)
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '../lib/supabaseClient';
 import trol from '../assets/trol.jpg';
 import humanoFreljord from '../assets/humanoFreiljord.jpg';
 import iceborn from '../assets/iceborn.jpg';
@@ -275,7 +276,7 @@ const RegionParticles = ({ region }) => {
 };
 
 // --- NUEVO COMPONENTE: DADOS CON FÍSICA ---
-const DiceOverlay = ({ isRolling, theme, diceCount = 4, rolledValues = [], rolledTotal = null, notification, region = 'Demacia' }) => {
+const DiceOverlay = ({ isRolling, theme, diceCount = 4, rolledValues = [], notification, region = 'Demacia' }) => {
     const [dices, setDices] = useState([]);
     const [particles, setParticles] = useState([]);
     const animationFrameRef = useRef(null);
@@ -525,16 +526,10 @@ const DiceOverlay = ({ isRolling, theme, diceCount = 4, rolledValues = [], rolle
                             initial={{ scale: 0.8, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="fixed top-8 left-1/2 -translate-x-1/2 bg-black/80 border border-white/15 px-5 py-3 rounded-full text-white shadow-[0_0_30px_rgba(0,0,0,0.55)] backdrop-blur-md"
+                            className="fixed top-8 left-1/2 -translate-x-1/2 bg-black/80 border border-white/15 px-6 py-3 rounded-full text-white shadow-[0_0_30px_rgba(0,0,0,0.55)] backdrop-blur-md"
                         >
-                            <div className="flex items-center gap-4">
-                                <div>
-                                    <div className="text-[10px] uppercase tracking-[0.35em] text-white/50">Tirada</div>
-                                    <div className="text-xl font-black italic" style={{ color: theme.accent }}>
-                                        {rolledTotal ?? '-'}
-                                    </div>
-                                </div>
-                                
+                            <div className="text-sm font-bold italic" style={{ color: theme.accent }}>
+                                {notification}
                             </div>
                         </motion.div>
                     )}
@@ -556,33 +551,229 @@ const DiceOverlay = ({ isRolling, theme, diceCount = 4, rolledValues = [], rolle
 
 // --- COMPONENTE MODAL DE CREACIÓN ---
 const CharacterModal = ({ isOpen, onClose, race, theme, charClass, region = 'Demacia' }) => {
+    const navigate = useNavigate();
+    const characterBucket = import.meta.env.VITE_SUPABASE_CHARACTER_BUCKET || 'personajes';
     const [stats, setStats] = useState({ FUE: '--', DES: '--', CON: '--', INT: '--', SAB: '--', CAR: '--' });
     const [isRolling, setIsRolling] = useState(false);
     const [lore, setLore] = useState("");
+    const [characterName, setCharacterName] = useState("");
+    const [imageFile, setImageFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState("");
+    const [toast, setToast] = useState(null);
     const [lastRolledValues, setLastRolledValues] = useState([]);
-    const [lastRolledTotal, setLastRolledTotal] = useState(null);
     const [rollNotification, setRollNotification] = useState("");
+    const [rolledNumbers, setRolledNumbers] = useState([]);
+    const [rollCount, setRollCount] = useState(0);
+    const [selectedNumber, setSelectedNumber] = useState(null);
 
-    const rollStat = (statName) => {
-        if (isRolling) return;
+    // Resetear los dados cuando se selecciona una nueva raza
+    useEffect(() => {
+        if (isOpen && race && race.id) {
+            const resetTimer = window.setTimeout(() => {
+                setStats({ FUE: '--', DES: '--', CON: '--', INT: '--', SAB: '--', CAR: '--' });
+                setLore("");
+                setCharacterName("");
+                setImageFile(null);
+                setImagePreview("");
+                setLastRolledValues([]);
+                setRollNotification("");
+                setRolledNumbers([]);
+                setRollCount(0);
+                setSelectedNumber(null);
+            }, 0);
+
+            return () => window.clearTimeout(resetTimer);
+        }
+    }, [race, isOpen]);
+
+    // Hacer que la notificación desaparezca después de 2 segundos
+    useEffect(() => {
+        if (rollNotification) {
+            const timer = setTimeout(() => {
+                setRollNotification("");
+            }, 2000);
+            return () => clearTimeout(timer);
+        }
+    }, [rollNotification]);
+
+    // Toast auto-dismiss
+    useEffect(() => {
+        if (toast) {
+            const t = setTimeout(() => setToast(null), 3500);
+            return () => clearTimeout(t);
+        }
+    }, [toast]);
+
+    const showToast = (message, type = 'info') => {
+        setToast({ message, type });
+    };
+
+    const rollStat = () => {
+        if (isRolling || rollCount >= 6) return;
         
         setIsRolling(true);
         
-        // Calcular el valor ANTES de mostrar los dados
+        // Calcular el valor
         const rolls = Array.from({ length: 4 }, () => Math.floor(Math.random() * 6) + 1);
         const total = rolls.reduce((a, b) => a + b, 0);
         
-        // Mostrar el dado con el valor correcto
+        // Mostrar el dado
         setLastRolledValues(rolls);
-        setLastRolledTotal(total);
         setRollNotification(`${rolls.join(' + ')} = ${total}`);
         
-        // El dado se muestra durante 900ms
+        // El dado se muestra durante 900ms y luego guarda el número
         setTimeout(() => {
-            setStats(prev => ({ ...prev, [statName]: total }));
+            setRolledNumbers(prev => [...prev, total]);
+            setRollCount(prev => prev + 1);
             setIsRolling(false);
             setLastRolledValues([]);
         }, 900);
+    };
+
+    const assignNumberToStat = (statName) => {
+        if (selectedNumber !== null) {
+            setStats(prev => ({ ...prev, [statName]: selectedNumber }));
+            setRolledNumbers(prev => prev.filter((_, i) => prev[i] !== selectedNumber || i !== prev.indexOf(selectedNumber)));
+            setSelectedNumber(null);
+        }
+    };
+
+    const handleImageChange = (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        if (!file.type.startsWith('image/')) {
+            showToast('El archivo debe ser una imagen', 'error');
+            return;
+        }
+        setImageFile(file);
+        const reader = new FileReader();
+        reader.onload = () => setImagePreview(reader.result.toString());
+        reader.readAsDataURL(file);
+    };
+
+    const handleRemoveImage = () => {
+        setImageFile(null);
+        setImagePreview("");
+    };
+
+    const uploadCharacterImage = async (file, userId) => {
+        if (!file) return null;
+
+        const fileExtension = file.name.split('.').pop() || 'png';
+        const filePath = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExtension}`;
+
+        const { error: uploadError } = await supabase.storage
+            .from(characterBucket)
+            .upload(filePath, file, {
+                cacheControl: '3600',
+                upsert: true,
+                contentType: file.type,
+            });
+
+        if (uploadError) {
+            throw uploadError;
+        }
+
+        const { data } = supabase.storage.from(characterBucket).getPublicUrl(filePath);
+        return data?.publicUrl || null;
+    };
+
+    const handleCreateCharacter = async () => {
+        // Validar que esté completo
+        if (!characterName.trim()) {
+            showToast("Por favor, elige un nombre para tu personaje", 'error');
+            return;
+        }
+
+        if (Object.values(stats).includes('--')) {
+            showToast("Por favor, asigna valores a todos los atributos", 'error');
+            return;
+        }
+
+        try {
+            // Obtener usuario autenticado
+            const { data: { user } } = await supabase.auth.getUser();
+            
+            if (!user) {
+                showToast("Debes estar autenticado para crear un personaje", 'error');
+                navigate('/login');
+                return;
+            }
+
+            // Calcular valores derivados
+            const constitucion = stats.CON;
+            const destreza = stats.DES;
+            const vidaMaxima = 10 + Math.floor((constitucion - 10) / 2); // Bonificador de CON
+            const iniciativa = Math.floor((destreza - 10) / 2); // Bonificador de DES
+            const armaduraClase = 10; // Por defecto
+            let uploadedImageUrl = null;
+
+            if (imageFile) {
+                try {
+                    uploadedImageUrl = await uploadCharacterImage(imageFile, user.id);
+                } catch (uploadError) {
+                    if (String(uploadError?.message || '').toLowerCase().includes('bucket not found')) {
+                        showToast(`No existe el bucket de Storage "${characterBucket}". Se usará la imagen local mientras lo creas.`, 'error');
+                    } else {
+                        showToast('No se pudo subir la imagen a Storage. Se usará la imagen local.', 'error');
+                    }
+                }
+            }
+
+            const finalImage = uploadedImageUrl || imagePreview || race.img || null;
+
+            // Insertar en Supabase
+            const { data, error } = await supabase
+                .from('personajes')
+                .insert([
+                    {
+                        usuario_id: user.id,
+                        nombre_personaje: characterName,
+                        raza: race.name,
+                        clase: charClass,
+                        region: region,
+                        fuerza: stats.FUE,
+                        destreza: stats.DES,
+                        constitucion: stats.CON,
+                        inteligencia: stats.INT,
+                        sabiduria: stats.SAB,
+                        carisma: stats.CAR,
+                        trasfondo: lore,
+                        img: finalImage,
+                        nivel: 1,
+                        vida_maxima: vidaMaxima,
+                        armadura_clase: armaduraClase,
+                        iniciativa: iniciativa,
+                        velocidad: '30 ft',
+                        fecha_creacion: new Date().toISOString()
+                    }
+                ])
+                .select();
+
+            if (error) {
+                console.error("Error al crear el personaje en Supabase:", error);
+
+                if (error.code === '42501' || /row-level security|policy/i.test(error.message || '')) {
+                    showToast('Supabase está bloqueando el guardado por RLS. Revisa las policies de la tabla personajes.', 'error');
+                    return;
+                }
+
+                showToast(error.message || "Hubo un error al crear el personaje", 'error');
+                return;
+            }
+
+            // Navegar a la página del personaje
+            if (data && data.length > 0) {
+                const created = data[0];
+                const characterState = { ...created, foto_raza: finalImage || race.img, trasfondo: lore, img: finalImage || created.img };
+                navigate(`/character/${created.id}`, { state: { character: characterState } });
+                showToast('Personaje creado correctamente', 'success');
+                onClose();
+            }
+        } catch (error) {
+            console.error("Error al crear el personaje:", error);
+            showToast(error?.message ? `No se pudo guardar la imagen o el personaje: ${error.message}` : 'Hubo un error al crear el personaje', 'error');
+        }
     };
 
     const handleClose = () => {
@@ -598,10 +789,21 @@ const CharacterModal = ({ isOpen, onClose, race, theme, charClass, region = 'Dem
                         isRolling={isRolling} 
                         theme={theme}
                         rolledValues={lastRolledValues}
-                        rolledTotal={lastRolledTotal}
                         notification={rollNotification}
                         region={region}
                     />
+
+                    {/* Toast local (errores y mensajes más chulos) */}
+                    {toast && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            className={`fixed top-6 right-6 z-200 px-5 py-3 rounded-lg shadow-lg text-white backdrop-blur-md border border-white/5 ${toast.type === 'error' ? 'bg-[#3b0a0a]' : toast.type === 'success' ? 'bg-[#1b3b12]' : 'bg-black/70'}`}
+                        >
+                            <div className="text-sm font-semibold">{toast.message}</div>
+                        </motion.div>
+                    )}
 
                     <motion.div 
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -633,33 +835,102 @@ const CharacterModal = ({ isOpen, onClose, race, theme, charClass, region = 'Dem
                             <section className="mb-12">
                                 <div className="flex justify-between items-end mb-8">
                                     <h3 className="text-[11px] tracking-[0.4em] text-white/60 uppercase font-bold">Atributos Base</h3>
-                                    <span className="text-[9px] text-white/20 uppercase italic">Haz clic en el dado</span>
+                                    <span className="text-[9px] font-bold" style={{ color: theme.accent }}>Tiradas: {rollCount}/6</span>
                                 </div>
+
+                                <button
+                                    disabled={isRolling || rollCount >= 6}
+                                    onClick={rollStat}
+                                    className={`w-full py-4 border-2 mb-6 font-black uppercase tracking-[0.3em] text-[13px] transition-all group relative overflow-hidden
+                                        ${rollCount >= 6 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white hover:text-black'}`}
+                                    style={{ borderColor: rollCount >= 6 ? 'rgba(255,255,255,0.2)' : theme.accent, color: rollCount >= 6 ? 'rgba(255,255,255,0.3)' : theme.accent }}
+                                >
+                                    <span className="relative z-10 group-hover:text-black transition-colors">🎲 Tirar Dados</span>
+                                    <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                                </button>
+
+                                {rolledNumbers.length > 0 && (
+                                    <div className="mb-6 p-4 bg-white/5 border border-white/10">
+                                        <p className="text-[10px] text-white/60 mb-3 uppercase tracking-widest">Números disponibles:</p>
+                                        <div className="flex gap-2 flex-wrap">
+                                            {rolledNumbers.map((num, idx) => (
+                                                <button
+                                                    key={idx}
+                                                    onClick={() => setSelectedNumber(selectedNumber === num ? null : num)}
+                                                    className={`px-4 py-2 border-2 font-bold text-sm transition-all ${selectedNumber === num ? 'bg-white text-black' : 'border-white/30 text-white hover:border-white/60'}`}
+                                                    style={selectedNumber === num ? { borderColor: theme.accent } : {}}
+                                                >
+                                                    {num}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                                
                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                                     {Object.keys(stats).map((s) => (
-                                        <div key={s} className="bg-white/5 border border-white/10 p-4 relative group overflow-hidden">
-                                            <p className="text-[10px] text-white/40 font-bold mb-1 tracking-widest">{s}</p>
-                                            <div className="flex items-center justify-between">
+                                        <div key={s} className={`flex flex-col items-center justify-center min-h-24 relative group overflow-hidden transition-all border ${selectedNumber !== null && stats[s] === '--' ? 'bg-white/10 border-white/20 cursor-pointer' : 'bg-white/5 border-white/10'}`}
+                                             onClick={() => selectedNumber !== null && stats[s] === '--' && assignNumberToStat(s)}>
+                                            <div className="flex flex-col items-center justify-center gap-2 flex-1 w-full">
+                                                <span className="text-[10px] text-white/40 font-bold tracking-widest">{s}</span>
                                                 <motion.span 
                                                     key={stats[s]}
                                                     initial={{ y: 10, opacity: 0 }}
                                                     animate={{ y: 0, opacity: 1 }}
-                                                    className="text-3xl font-black text-white italic"
+                                                    className="text-4xl font-black text-white italic"
                                                 >
                                                     {stats[s]}
                                                 </motion.span>
-                                                <button 
-                                                    disabled={isRolling}
-                                                    onClick={() => rollStat(s)}
-                                                    className={`w-9 h-9 flex items-center justify-center rounded-full transition-all text-sm
-                                                        ${isRolling ? 'opacity-20' : 'bg-white/5 hover:bg-white hover:text-black hover:scale-110 active:scale-95'}`}
-                                                >
-                                                    🎲
-                                                </button>
                                             </div>
+                                            {stats[s] !== '--' && (
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        const valueToReturn = stats[s];
+                                                        setStats(prev => ({ ...prev, [s]: '--' }));
+                                                        setRolledNumbers(prev => [...prev, valueToReturn]);
+                                                    }}
+                                                    className="absolute top-1 right-1 text-white/40 hover:text-white transition-colors text-sm"
+                                                    title="Limpiar"
+                                                >
+                                                    ✕
+                                                </button>
+                                            )}
                                             <div className="absolute bottom-0 left-0 h-px bg-white/5 w-full group-hover:bg-white/20 transition-colors" />
                                         </div>
                                     ))}
+                                </div>
+                            </section>
+
+                            <section className="mb-10">
+                                <h3 className="text-[11px] tracking-[0.4em] text-white/60 uppercase font-bold mb-4">Nombre del Personaje</h3>
+                                <input
+                                    type="text"
+                                    value={characterName}
+                                    onChange={(e) => setCharacterName(e.target.value)}
+                                    placeholder="Elige un nombre..."
+                                    className="w-full bg-white/5 border border-white/10 p-4 text-gray-300 font-light focus:outline-none focus:border-white/30 transition-all"
+                                    maxLength="50"
+                                />
+                            </section>
+
+                            <section className="mb-8">
+                                <h3 className="text-[11px] tracking-[0.4em] text-white/60 uppercase font-bold mb-4">Avatar (opcional)</h3>
+                                <div className="flex items-center gap-4">
+                                    <label className="inline-flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-2 rounded cursor-pointer hover:bg-white/8">
+                                        <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white/90" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M7 10l5-5 5 5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                        <span className="text-sm uppercase tracking-wider text-white/80">Subir imagen</span>
+                                    </label>
+
+                                    {imagePreview ? (
+                                        <div className="flex items-center gap-3">
+                                            <img src={imagePreview} alt="preview" className="w-20 h-20 object-cover rounded-md border border-white/10" />
+                                            <button onClick={handleRemoveImage} className="px-3 py-2 bg-white/5 border border-white/10 rounded text-[12px]">Quitar</button>
+                                        </div>
+                                    ) : (
+                                        <div className="text-sm text-white/40">Si no subes nada, se usará la imagen de la raza.</div>
+                                    )}
                                 </div>
                             </section>
 
@@ -673,7 +944,10 @@ const CharacterModal = ({ isOpen, onClose, race, theme, charClass, region = 'Dem
                                 />
                             </section>
 
-                            <button className="w-full py-5 border-2 font-black uppercase tracking-[0.4em] text-[12px] transition-all hover:bg-white hover:text-black group relative overflow-hidden" style={{ borderColor: theme.accent, color: theme.accent }}>
+                            <button 
+                                onClick={handleCreateCharacter}
+                                className="w-full py-5 border-2 font-black uppercase tracking-[0.4em] text-[12px] transition-all hover:bg-white hover:text-black group relative overflow-hidden" 
+                                style={{ borderColor: theme.accent, color: theme.accent }}>
                                 <span className="relative z-10 group-hover:text-black transition-colors">Forjar Destino</span>
                                 <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                             </button>
@@ -754,7 +1028,7 @@ const RaceSelector = () => {
             <motion.div className="fixed inset-0 z-0 pointer-events-none" initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ background: theme.aura }} />
 
             <header className="relative z-10 w-full max-w-7xl flex justify-between items-start mb-20">
-                <button onClick={() => navigate(-1)} className="group flex items-center gap-2 uppercase tracking-[0.3em] text-[10px] font-bold transition-all" style={{ color: theme.accent }}>
+                <button onClick={() => navigate('/dashboard')} className="group flex items-center gap-2 uppercase tracking-[0.3em] text-[10px] font-bold transition-all" style={{ color: theme.accent }}>
                     <span className="group-hover:-translate-x-1 transition-transform italic text-lg">←</span> 
                     Expedición {region}
                 </button>

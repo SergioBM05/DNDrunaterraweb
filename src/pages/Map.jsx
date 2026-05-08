@@ -91,7 +91,7 @@ const DATA_RUNATERRA = {
                 subtitulo: "Devastador",
                 descripcion: "Los Devastadores son la encarnación de la doctrina militar noxiana: fuerza, disciplina y dominio absoluto del campo de batalla. No son salvajes sin control; son líderes que canalizan su furia en estrategia marcial. Su ira es la del Imperio: expansiva, dominante y calculadoramente brutal. Cada golpe es un mensaje, cada grito una orden. Destruyen enemigos no solo con músculo, sino con una presencia que doblega voluntades y convierte a sus aliados en extensiones letales de su propia furia. Recompensa el liderazgo en primera línea y la coordinación táctica.",
                 tags: ["Melee", "CA Todas"],
-                tags: ["Espadas largas, mandobles, lanzas, hachas de guerra, picas, escudo táctico"],
+                weapons: ["Espadas largas, mandobles, lanzas, hachas de guerra, picas, escudo táctico"],
                 habilidades: [
                     { name: "Presencia del Conquistador", desc: " La furia no disminuye fuera de combate mientras la unidad no descanse. Al entrar en Rabia, todos los aliados a 15m ganan +10 PV temporales y ventaja en su siguiente tirada de ataque. Los enemigos a 10m deben hacer salvación de WIS (CD = 8 + bonif. competencia + CHA) o quedar asustados durante 1 turno. Además, cada vez que un aliado a 15m impacta a un enemigo asustado por ti, tú generas +5 de furia." },
                 ],
@@ -364,7 +364,7 @@ const FreljordSnowParticles = () => (
         })}
         {/* Capa de "Viento Gélido" (neblina blanca muy sutil pasando rápido) */}
         <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"
+            className="absolute inset-0 bg-linear-to-r from-transparent via-white/5 to-transparent"
             animate={{ x: ['-100%', '100%'], opacity: [0, 0.2, 0] }}
             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         />
@@ -514,7 +514,7 @@ const BilgewaterRainParticles = () => (
         {[...Array(60)].map((_, i) => (
             <motion.div
                 key={i}
-                className="absolute bg-gradient-to-b from-transparent via-[#00a8ff]/40 to-white/20"
+                className="absolute bg-linear-to-b from-transparent via-[#00a8ff]/40 to-white/20"
                 style={{
                     width: '1px',
                     height: seededValue(i, 70, 40, 80) + 'px', // Largos variables
@@ -593,7 +593,7 @@ const IxtalLeafParticles = () => {
 
             {/* Efecto de polen/magia ambiental de la selva */}
             <motion.div
-                className="absolute inset-0 bg-gradient-to-b from-[#2ecc71]/5 via-transparent to-transparent"
+                className="absolute inset-0 bg-linear-to-b from-[#2ecc71]/5 via-transparent to-transparent"
                 animate={{ opacity: [0.2, 0.4, 0.2] }}
                 transition={{ duration: 8, repeat: Infinity }}
             />
@@ -606,6 +606,7 @@ const IxtalLeafParticles = () => {
 const RunaterraMap = () => {
     const [isLoaded, setIsLoaded] = useState(false);
     const [activeRegionKey, setActiveRegionKey] = useState(null);
+    const navigate = useNavigate();
 
     const regionData = activeRegionKey ? DATA_RUNATERRA[activeRegionKey] : null;
 
@@ -709,15 +710,31 @@ const RunaterraMap = () => {
                 )}
             </AnimatePresence>
 
-            <nav className="absolute top-0 left-0 z-40 p-10 pointer-events-none">
-                <motion.h1
-                    variants={uiVariants}
-                    initial="hidden"
-                    animate={isLoaded ? "visible" : "hidden"}
-                    className="text-[#c8aa6e] text-4xl tracking-[0.2em] uppercase italic font-black drop-shadow-[0_5px_15px_rgba(0,0,0,0.8)]"
-                >
-                    Explorador de Runaterra
-                </motion.h1>
+            <nav className="absolute top-0 left-0 z-40 w-full p-6 pointer-events-none">
+                <div className="max-w-7xl mx-auto flex items-center gap-4 pointer-events-none">
+                    <motion.h1
+                        variants={uiVariants}
+                        initial="hidden"
+                        animate={isLoaded ? "visible" : "hidden"}
+                        className="text-[#c8aa6e] text-4xl tracking-[0.2em] uppercase italic font-black drop-shadow-[0_5px_15px_rgba(0,0,0,0.8)]"
+                    >
+                        Explorador de Runaterra
+                    </motion.h1>
+
+                    {isLoaded && !activeRegionKey && (
+                        <motion.button
+                            onClick={() => navigate('/selectCharacter')}
+                            whileHover={{ scale: 1.03 }}
+                            whileTap={{ scale: 0.98 }}
+                            className="pointer-events-auto ml-auto inline-flex items-center gap-3 px-4 py-2 rounded-full bg-linear-to-r from-[#f0e6d2] via-[#c8aa6e] to-[#785a28] text-[#081018] font-semibold uppercase tracking-wider shadow-[0_6px_30px_rgba(200,170,110,0.12)] border border-white/10 backdrop-blur-sm transition-all"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 opacity-90">
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                            </svg>
+                            <span className="text-sm">Mis Personajes</span>
+                        </motion.button>
+                    )}
+                </div>
             </nav>
 
             <div style={{ width: "100vw", height: "100vh" }}>
@@ -761,21 +778,21 @@ const RunaterraMap = () => {
         </div>
     );
 };
-const ClassSection = ({ clase, regionColor,regionNombre }) => {
+const ClassSection = ({ clase, regionColor, regionNombre }) => {
     const [isHovered, setIsHovered] = useState(false);
     const navigate = useNavigate();
     const handleSelection = () => {
         // Opcional: puedes pasar la clase elegida a través del estado de la ruta
-        navigate('/selector-raza', { state: { selectedClass: clase.titulo, color: regionColor ,region:regionNombre} });
+        navigate('/selector-raza', { state: { selectedClass: clase.titulo, color: regionColor, region: regionNombre } });
     };
     return (
         <motion.section
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
-            className="relative group w-full min-h-[700px] border border-[#c8aa6e]/20 backdrop-blur-sm overflow-hidden bg-black/30"
+            className="relative group w-full min-h-175 border border-[#c8aa6e]/20 backdrop-blur-sm overflow-hidden bg-black/30"
         >
-            <div className="relative w-full h-full p-12 lg:p-20 flex flex-col justify-end min-h-[700px]">
+            <div className="relative w-full h-full p-12 lg:p-20 flex flex-col justify-end min-h-175">
                 {/* Imagen de Fondo y Overlays */}
                 <div className="absolute inset-0 z-0">
                     <motion.img
@@ -785,7 +802,7 @@ const ClassSection = ({ clase, regionColor,regionNombre }) => {
                         transition={{ duration: 1.5 }}
                         className="w-full h-full object-cover object-top opacity-40 mix-blend-lighten"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#010a13] via-transparent to-transparent z-10" />
+                    <div className="absolute inset-0 bg-linear-to-t from-[#010a13] via-transparent to-transparent z-10" />
                 </div>
 
                 {/* Partículas Mágicas */}
@@ -805,6 +822,7 @@ const ClassSection = ({ clase, regionColor,regionNombre }) => {
                         <p className="text-[#c8aa6e] uppercase tracking-[0.2em] text-sm font-semibold max-w-xl pl-4 border-l-2 border-[#c8aa6e]/50">
                             {clase.subtitulo}
                         </p>
+
                     </header>
 
                     {/* Etiquetas (Tags) */}
@@ -812,6 +830,20 @@ const ClassSection = ({ clase, regionColor,regionNombre }) => {
                         {clase.tags?.map(tag => (
                             <span key={tag} className="px-4 py-1.5 border border-[#c8aa6e]/20 rounded-sm text-[9px] font-bold tracking-widest text-[#c8aa6e] bg-black/40 uppercase">
                                 {tag}
+                            </span>
+
+                        ))}
+
+                    </div>
+
+                    <p className="text-[#c8aa6e] uppercase tracking-[0.2em] text-sm font-semibold max-w-xl pl-4 border-l-2 border-[#c8aa6e]/50 mb-4">
+                        Available Weapons
+                    </p>
+
+                    <div className="flex gap-3 mb-12">
+                        {clase.weapons?.map(weapon => (
+                            <span key={weapon} className="px-4 py-1.5 border border-[#c8aa6e]/20 rounded-sm text-[9px] font-bold tracking-widest text-[#c8aa6e] bg-black/40 uppercase">
+                                {weapon}
                             </span>
                         ))}
                     </div>
@@ -847,9 +879,9 @@ const ClassSection = ({ clase, regionColor,regionNombre }) => {
                                 onClick={handleSelection}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                className="relative px-12 py-5 transition-all duration-300 border-2 overflow-hidden group/btn min-w-[280px] bg-transparent border-[#c8aa6e]/50 text-[#c8aa6e] hover:border-[#c8aa6e] hover:bg-[#c8aa6e]/10 shadow-[0_0_20px_rgba(200,170,110,0.1)]"
+                                className="relative px-12 py-5 transition-all duration-300 border-2 overflow-hidden group/btn min-w-70 bg-transparent border-[#c8aa6e]/50 text-[#c8aa6e] hover:border-[#c8aa6e] hover:bg-[#c8aa6e]/10 shadow-[0_0_20px_rgba(200,170,110,0.1)]"
                             >
-                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 ease-in-out" />
+                                <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 ease-in-out" />
 
                                 <span className="relative z-10 font-black uppercase tracking-[0.4em] text-xs">
                                     Seleccionar clase

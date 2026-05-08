@@ -2,7 +2,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './pages/Login'; 
 import RunaterraMap from './pages/Map';
 import RaceSelector from './pages/RaceSelector';
-// import { Registro } from './pages/Registro';
+import CharacterSheet from './pages/CharacterSheet';
+import SelectCharacter from './pages/selectCharacter';
 import './App.css';
 
 function App() {
@@ -23,6 +24,10 @@ function App() {
           <Route path="/dashboard" element={<RunaterraMap/>} />
 
           <Route path="/selector-raza" element={<RaceSelector />} />
+
+          <Route path="/character/:id" element={<CharacterSheet />} />
+
+          <Route path="/selectCharacter" element={<SelectCharacter />} />
 
           <Route path="/avisale-a-sergio" element ={<div className="p-10">Dile a sergio que te haga cuenta</div>} />
           
