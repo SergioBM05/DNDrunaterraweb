@@ -90,7 +90,8 @@ const DATA_RUNATERRA = {
                 titulo: "Bárbaro",
                 subtitulo: "Devastador",
                 descripcion: "Los Devastadores son la encarnación de la doctrina militar noxiana: fuerza, disciplina y dominio absoluto del campo de batalla. No son salvajes sin control; son líderes que canalizan su furia en estrategia marcial. Su ira es la del Imperio: expansiva, dominante y calculadoramente brutal. Cada golpe es un mensaje, cada grito una orden. Destruyen enemigos no solo con músculo, sino con una presencia que doblega voluntades y convierte a sus aliados en extensiones letales de su propia furia. Recompensa el liderazgo en primera línea y la coordinación táctica.",
-                tags: ["Melee", "CA Todas", "Espadas largas, mandobles, lanzas, hachas de guerra, picas, escudo táctico"],
+                tags: ["Melee", "CA Todas"],
+                tags: ["Espadas largas, mandobles, lanzas, hachas de guerra, picas, escudo táctico"],
                 habilidades: [
                     { name: "Presencia del Conquistador", desc: " La furia no disminuye fuera de combate mientras la unidad no descanse. Al entrar en Rabia, todos los aliados a 15m ganan +10 PV temporales y ventaja en su siguiente tirada de ataque. Los enemigos a 10m deben hacer salvación de WIS (CD = 8 + bonif. competencia + CHA) o quedar asustados durante 1 turno. Además, cada vez que un aliado a 15m impacta a un enemigo asustado por ti, tú generas +5 de furia." },
                 ],
