@@ -620,6 +620,7 @@ const RunaterraMap = () => {
     };
 
     return (
+        
         <div className="relative w-screen h-screen bg-[#010a13] overflow-hidden text-white font-serif selection:bg-[#c8aa6e]/30">
             <AnimatePresence>{!isLoaded && <LoadingScreen />}</AnimatePresence>
 
