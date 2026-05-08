@@ -110,13 +110,12 @@ const DATA_RUNATERRA = {
         clases: [
             {
                 id: "barbaroFreiljord",
-                titulo: "Barbaro",
-                subtitulo: "THE HEART OF THE FRELJORD",
-                descripcion: "Blessed with massive pecs and an even bigger heart, Braum is a beloved hero of the Freljord who protects his friends with a giant enchanted door.",
-                tags: ["SUPPORT", "TANK"],
+                titulo: "Bárbaro",
+                subtitulo: "Berserker",
+                descripcion: "Los Berserkers del Fréljord son guerreros que canalizan la furia primaria de la tundra y las tormentas. A diferencia de otros bárbaros, su ira no es solo calor de batalla: es frío cortante, es el rugido de la ventisca. Luchan con abandono temerario, entrando en estados de frenesí donde el dolor se convierte en poder y el hielo en su aliado. Cuanto más daño reciben, más peligrosos se vuelven, sacrificando defensa por pura aniquilación. Recompensa el juego agresivo y el riesgo constante en primera línea.",
+                tags: ["Melee", "CA Medio,Pesado"],
                 habilidades: [
-                    { name: "Winter's Bite", desc: "Propels freezing ice from his shield." },
-                    { name: "Glacial Fissure", desc: "Smashes the ground, knocking up and slowing enemies." }
+                    { name: "Sangre de la Tormenta", desc: " La furia no disminuye fuera de combate si está en clima frío o nevado. Mientras está en Rabia, genera aura de frío (5 pies): enemigos que empiezan su turno en el área hacen salvación de CON (CD = 8) o quedan ralentizados 1 turno. Cada vez que recibe daño, su siguiente ataque gana +1d4 de daño por frío (no acumulable)." },
                 ],
                 imagen: barbaroFreiljord,
             },
@@ -130,13 +129,13 @@ const DATA_RUNATERRA = {
         clases: [
             {
                 id: "mago_azir",
-                titulo: "Azir",
-                subtitulo: "THE EMPEROR OF THE SANDS",
-                descripcion: "The ancient emperor of Shurima, Azir seeks to restore his empire to its former glory.",
-                tags: ["MAGE", "MARKSMAN"],
+                titulo: "Bárbaro",
+                subtitulo: "Furia de las Dunas",
+                descripcion: "Los Furias de las Dunas canalizan una resistencia conservadora, soportando castigos que matarían a cualquier otro. Su poder crece con cada golpe recibido, como las tormentas de arena que se alimentan del viento. No buscan evadir el daño: lo absorben, lo transforman y lo devuelven multiplicado. Son inevitables, imparables, como el propio desierto. Su resistencia es legendaria y su presencia evoca el poder de los antiguos dioses shurimanos. Recompensa el juego de tanque absoluto y la venganza paciente.",
+                tags: ["Melee", "CA Ligero, Medio"],
                 habilidades: [
-                    { name: "Arise!", desc: "Summons a Sand Soldier." },
-                    { name: "Emperor's Divide", desc: "Summons a wall of soldiers." }
+                    { name: "Resistencia de las Arenas", desc: "Resistencia de las Arenas: La furia no disminuye fuera de combate mientras esté en terreno desértico o bajo el sol. Al entrar en Rabia, obtienes una coraza de arena: ganas resistencia al daño perforante, cortante y contundente durante 2 turnos. Cada vez que recibes daño, tu siguiente ataque gana +1d6 de daño radiante o de fuego (eliges al obtener esta pasiva). Este efecto se acumula hasta 3 veces (para un máximo de +3d6) y dura hasta el final de tu siguiente turno." },
+
                 ],
                 imagen: barbaroShurima,
             },
