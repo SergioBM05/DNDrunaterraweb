@@ -24,16 +24,24 @@ const CharacterLibrary = () => {
 
     useEffect(() => {
         const fetchCharacters = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+
+            if (!user) {
+                navigate('/login');
+                return;
+            }
+
             const { data, error } = await supabase
                 .from('personajes')
                 .select('*')
+                .eq('usuario_id', user.id)
                 .order('fecha_creacion', { ascending: false });
 
             if (!error) setCharacters(data);
             setLoading(false);
         };
         fetchCharacters();
-    }, []);
+    }, [navigate]);
 
     const filteredCharacters = filter === 'All' 
         ? characters 

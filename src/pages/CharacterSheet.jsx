@@ -45,10 +45,18 @@ const CharacterSheet = () => {
             try {
                 let characterData = location.state?.character;
                 if (!characterData) {
+                    const { data: { user } } = await supabase.auth.getUser();
+
+                    if (!user) {
+                        navigate('/login');
+                        return;
+                    }
+
                     const { data, error } = await supabase
                         .from('personajes')
                         .select('*')
                         .eq('id', id)
+                        .eq('usuario_id', user.id)
                         .single();
 
                     if (error || !data) {
