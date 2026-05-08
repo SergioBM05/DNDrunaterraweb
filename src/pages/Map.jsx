@@ -113,7 +113,7 @@ const DATA_RUNATERRA = {
                 titulo: "Bárbaro",
                 subtitulo: "Berserker",
                 descripcion: "Los Berserkers del Fréljord son guerreros que canalizan la furia primaria de la tundra y las tormentas. A diferencia de otros bárbaros, su ira no es solo calor de batalla: es frío cortante, es el rugido de la ventisca. Luchan con abandono temerario, entrando en estados de frenesí donde el dolor se convierte en poder y el hielo en su aliado. Cuanto más daño reciben, más peligrosos se vuelven, sacrificando defensa por pura aniquilación. Recompensa el juego agresivo y el riesgo constante en primera línea.",
-                tags: ["Melee", "CA Ligeroo, Medio"],
+                tags: ["Melee", "CA Ligero, Medio"],
                 habilidades: [
                     { name: "Sangre de la Tormenta", desc: " La furia no disminuye fuera de combate si está en clima frío o nevado. Mientras está en Rabia, genera aura de frío (5 pies): enemigos que empiezan su turno en el área hacen salvación de CON (CD = 8) o quedan ralentizados 1 turno. Cada vez que recibe daño, su siguiente ataque gana +1d4 de daño por frío (no acumulable)." },
                 ],
